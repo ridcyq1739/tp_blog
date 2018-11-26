@@ -1,0 +1,100 @@
+{extend name="public/base"}
+{$articleInfo.title|default="首页"}
+{block name="content"}
+<div class="container">
+<div class="row">
+	<div class="col-sm-12 col-md-8">
+		<h1 class="article-title">{$articleInfo.title}</h1>
+		<div class="status">{$articleInfo.views}阅读-{$com_num}评论-作者：{$articleInfo.admin.nickname}
+			{volist name="articleInfo.tags|strToArray" id="vo"}
+			<span class="label label-default">{$vo}</span>
+			{/volist}
+		</div>
+		<div class="article-content">
+			<blockquote>
+				{$articleInfo.desc}
+			</blockquote>
+		{$articleInfo.content|raw}
+		</div>
+		<div class="article-comment">
+			<div class="page-header"><b>相关评论</b></div>
+			<div class="comment-content">
+				<form action="#">
+					<input type="hidden" name="article_id" value="{$articleInfo.id}">
+					<input type="hidden" name="member_id" value="{:session('index.id')}">
+					<div class="form-group">
+						<textarea class="form-control" id="comment" name="content" rows="5" cols=""></textarea>
+					</div>
+					<div class="form-group pull-right">
+						<button class="btn btn-primary" id="comment-sub">评论（请认真评论）</button>
+					</div>
+				</form>
+			</div>
+			<div class="clearfix"></div>
+			{volist name="articleInfo.comment" id="vo"}
+			<div class="comment-list">
+				<div class="comment-list-item">
+					<div class="info">{$vo.member.nickname}<small>{$vo.create_time}</small></div>
+					<div class="content">{$vo.content}</div>
+				</div>
+			</div>
+			{/volist}
+		</div>
+	</div>
+	<div class="col-sm-12 col-md-4">
+		<div class="affix">
+			<div class="page-header h3">推荐文章</div>
+			<div class="topic-list">
+				{volist name="top_articles" id="article"}
+				<div class="topic-list-item">
+					<a href="{:url('index/article/detail',['id'=>$article.id])}" class="title">{$article.title}</a>
+				</div>
+				{/volist}
+			</div>
+		</div>
+	</div>
+</div>
+</div>
+{/block}
+{block name="js"}
+<script>
+    $(function () {
+        $('#comment-sub').click(function () {
+            if("{:session('?index.id')}"){
+                $.ajax({
+                    url:"{:url('index/article/comment')}",
+                    type:"post",
+                    data:$('form').serialize(),
+                    dataType:"json",
+                    success:function (data) {
+                        if(data.code == 1){
+                            layer.msg(data.msg,{
+                                icon:6,
+                                time:2000
+                            },function () {
+                                location.href = location.href
+                            })
+                        }else{
+                            layer.open({
+                                title:"评论失败",
+                                content:data.msg,
+                                icon:5,
+                                anim:6
+                            })
+                        }
+                    }
+                })
+			}else{
+                layer.msg('请先登录',{
+                    icon:5,
+					time: 2000,
+				},function () {
+					location.href = "{:url('index/index/login')}"
+                })
+			}
+
+            return false
+        })
+    })
+</script>
+{/block}

@@ -1,0 +1,143 @@
+{extend name="public/base" /}
+{block name="content"}
+<div class="page-content">
+	<!-- Page Breadcrumb -->
+	<div class="page-breadcrumbs">
+		<ul class="breadcrumb">
+			<li>
+				<i class="fa fa-home"></i>&nbsp;文章管理
+			</li>
+			<li>文章列表</li>
+		</ul>
+	</div>
+	<!-- /Page Breadcrumb -->
+	<!-- Page Body -->
+	<div class="page-body">
+		<a href="{:url('admin/article/add')}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i>&nbsp;添加文章</a>
+		<div class="row">
+			<div class="col-xs-12">
+				<div class="widget">
+					<div class="widget-header">
+						<span class="widget-caption">文章列表</span>
+						<div class="widget-buttons">
+							{$articles->render()|raw|replace}
+						</div>
+					</div>
+					<div class="widget-body">
+						<table class="table table-hover table-bordered">
+							<thead>
+							<tr>
+								<th>ID</th>
+								<th>文章标题</th>
+								<th>所属导航</th>
+								<th>推荐</th>
+								<th>操作</th>
+							</tr>
+							</thead>
+							{volist name="articles" id="article"}
+							<tr>
+								<td>{$article.id}</td>
+								<td>{$article.title}</td>
+								<td>{$article.cate.catename}</td>
+								<td>{if $article.is_top==1}已推荐{else/}未推荐{/if}</td>
+								<td>
+									{if $article.is_top==1}
+									<a href="#" class="btn btn-sm btn-darkorange article-top" istop="{$article.is_top}" dataid="{$article.id}">取消推荐</a>
+									{else/}
+									<a href="#" class="btn btn-sm btn-azure article-top" istop="{$article.is_top}" dataid="{$article.id}">推荐</a>
+									{/if}
+									<a href="{:url('admin/article/edit',['id'=>$article.id])}" class="btn btn-sm btn-warning">编辑</a>
+									<a href="#" dataid="{$article.id}" class="btn btn-sm btn-danger btn-del">删除</a>
+								</td>
+							</tr>
+							{/volist}
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /Page Body -->
+</div>
+{/block}
+{block name="js"}
+<script>
+	$(function () {
+        $('.pagination').addClass('pagination-sm');
+		$('.article-top').click(function () {
+			var id = $(this).attr('dataid');
+			var is_top = $(this).attr('istop');
+			if(is_top == 1){
+			    var msg = '确定取消推荐吗？'
+			}else{
+			    var msg = '确定推荐吗?'
+			}
+			layer.confirm(msg,{
+			    title:'推荐操作',
+				icon:3
+			},function (index) {
+				layer.close(index);
+				$.ajax({
+					url:"{:url('admin/article/top')}",
+					type:"post",
+					data:{id:id,is_top:is_top},
+					dataType:"json",
+					success:function (data) {
+						if(data.code==1){
+						    layer.msg(data.msg,{
+						        icon:6,
+								time:2000
+							},function () {
+								location.href = data.url
+                            })
+						}else{
+						    layer.open({
+								title:"操作失败",
+								content:data.msg,
+								icon:5,
+								anim:6
+							})
+						}
+                    }
+				})
+            })
+			return false
+        })
+
+
+		$('.btn-del').click(function () {
+			var id = $(this).attr('dataid');
+			layer.confirm('确定删除吗?',{
+			    title:'删除文章',
+				icon:3,
+
+			},function (index) {
+				layer.close(index);
+				$.ajax({
+                    url:"{:url('admin/article/delete')}",
+                    type:"post",
+                    data:{id:id},
+                    dataType:"json",
+                    success:function (data) {
+                        if (data.code ==1){
+                            layer.msg(data.msg,{
+                                icon:6,
+                                time:2000,
+                            },function () {
+                                location.href = data.url;
+                            })
+                        }else{
+                            layer.open({
+                                title:"删除文章",
+                                content:data.msg,
+                                icon:5,
+                                anim:6
+                            })
+                        }
+                    }
+				})
+            })
+        })
+    })
+</script>
+{/block}

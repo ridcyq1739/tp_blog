@@ -1,0 +1,126 @@
+{extend name="public/base" /}
+{block name="content"}
+<div class="page-content">
+	<!-- Page Breadcrumb -->
+	<div class="page-breadcrumbs">
+		<ul class="breadcrumb">
+			<li class="active">
+				<i class="fa fa-home"></i>&nbsp;栏目管理
+			</li>
+			<li>栏目列表</li>
+		</ul>
+	</div>
+	<!-- /Page Breadcrumb -->
+	<!-- Page Body -->
+	<div class="page-body">
+		<a href="{:url('admin/cate/add')}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i>&nbsp;栏目添加</a>
+		<div class="row">
+			<div class="col-xs-12">
+				<div class="widget">
+					<div class="widget-header">
+						<span class="widget-caption">栏目列表</span>
+						<div class="widget-buttons">
+							{$cates->render()|raw|replace}
+						</div>
+					</div>
+					<div class="widget-body">
+						<table class="table table-hover table-bordered">
+							<thead>
+							<tr>
+								<th>排序</th>
+								<th>栏目名称</th>
+								<th>操作</th>
+							</tr>
+							</thead>
+							<tbody>
+							{volist name="cates" id="cate"}
+							<tr>
+								<td><input type="text" name="sort" value="{$cate.sort}" dataid='{$cate.id}' size="1"></td>
+								<td>{$cate.catename}</td>
+								<td>
+									<a href="{:url('admin/cate/edit',['id'=>$cate.id])}" class="btn btn-azure btn-xs">编辑</a>
+									<a href="{:url('admin/cate/delete')}" dataid='{$cate.id}' class="btn btn-danger btn-xs cate-btn">删除</a>
+								</td>
+							</tr>
+							{/volist}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /Page Body -->
+</div>
+{/block}
+{block name="js"}
+<script>
+	$(function () {
+		$('.pagination').addClass('pagination-sm');
+
+		$('input[name=sort]').change(function () {
+		    var id = $(this).attr('dataid');
+		    var sort = $(this).val()
+			$.ajax({
+				url:"{:url('admin/cate/sort')}",
+				type:"post",
+				data:{id:id,sort:sort},
+				dataType:"json",
+				success:function (data) {
+					if (data.code==1){
+					    layer.msg(data.msg,{
+					        icon:6,
+							time:2000
+						},function () {
+							location.href = data.url;
+                        })
+					}else{
+					    layer.open({
+							title:"排序失败",
+							content:data.msg,
+							icon:5,
+							anim:6
+						})
+					}
+                }
+			});
+			return false
+        })
+
+
+		$('.cate-btn').click(function () {
+		    var id = $(this).attr('dataid');
+		    layer.confirm('确定删除吗',{
+		        title:'栏目删除',
+				icon:3
+			},function (index) {
+				layer.close(index);
+                $.ajax({
+                    url:"{:url('admin/cate/delete')}",
+                    type:"post",
+                    data:{id:id},
+                    dataType:"json",
+					success:function (data) {
+						if (data.code ==1){
+						    layer.msg(data.msg,{
+						        icon:6,
+								time:2000,
+							},function () {
+								location.href = data.url;
+                            })
+						}else{
+						    layer.open({
+								title:"删除栏目",
+								content:data.msg,
+								icon:5,
+								anim:6
+							})
+						}
+                    }
+                })
+            });
+			return false
+        })
+    })
+</script>
+{/block}

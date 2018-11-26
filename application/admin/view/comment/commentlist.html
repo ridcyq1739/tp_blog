@@ -1,0 +1,98 @@
+{extend name="public/base" /}
+{block name="content"}
+<div class="page-content">
+	<!-- Page Breadcrumb -->
+	<div class="page-breadcrumbs">
+		<ul class="breadcrumb">
+			<li class="active">
+				<i class="fa fa-home"></i>&nbsp;评论管理
+			</li>
+			<li>评论列表</li>
+		</ul>
+	</div>
+	<!-- /Page Breadcrumb -->
+	<!-- Page Body -->
+	<div class="page-body">
+		<div class="row">
+			<div class="col-xs-12">
+				<div class="widget">
+					<div class="widget-header">
+						<span class="widget-caption">栏目列表</span>
+						<div class="widget-buttons">
+							{$comments->render()|raw|replace}
+						</div>
+					</div>
+					<div class="widget-body">
+						<table class="table table-hover table-bordered">
+							<thead>
+							<tr>
+								<th>ID</th>
+								<th>评论内容</th>
+								<th>用户</th>
+								<th>文章</th>
+								<th>操作</th>
+							</tr>
+							</thead>
+							<tbody>
+							{volist name="comments" id="comment"}
+							<tr>
+								<td>{$comment.id}</td>
+								<td>{$comment.content}</td>
+								<td>{$comment.member.nickname}</td>
+								<td>{$comment.article.title}</td>
+								<td>
+									<a href="#" dataid="{$comment.id}" class="btn btn-danger btn-xs del-btn">删除</a>
+								</td>
+							</tr>
+							{/volist}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /Page Body -->
+</div>
+{/block}
+{block name="js"}
+<script>
+	$(function () {
+		$('.pagination').addClass('pagination-sm');
+
+		$('.del-btn').click(function () {
+			var id = $(this).attr('dataid');
+			layer.confirm('确定删除吗',{
+			    title:"删除评论",
+			    icon:3
+			},function (index) {
+				layer.close(index);
+				$.ajax({
+					url:"{:url('admin/comment/delete')}",
+					type:'post',
+					data:{id:id},
+					dataType:"json",
+					success:function (data) {
+						if(data.code==1){
+						    layer.msg(data.msg,{
+						        icon:6,
+								time:2000
+							},function () {
+								location.href = data.url
+                            })
+						}else{
+						    layer.open({
+								title:"删除失败",
+								content:data.msg,
+								icon:5,
+								anim:6
+							})
+						}
+                    }
+				})
+            })
+        })
+
+    })
+</script>
+{/block}

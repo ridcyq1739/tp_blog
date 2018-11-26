@@ -1,0 +1,102 @@
+{extend name="public/base" /}
+{block name="content"}
+<div class="page-content">
+    <!-- Page Breadcrumb -->
+    <div class="page-breadcrumbs">
+        <ul class="breadcrumb">
+            <li class="active">
+                <i class="fa fa-home"></i>&nbsp;管理员管理
+            </li>
+            <li>
+                管理员添加
+            </li>
+        </ul>
+    </div>
+    <!-- /Page Breadcrumb -->
+    <!-- Page Body -->
+    <div class="page-body">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="widget radius-bordered">
+                    <div class="widget-header bordered-bottom bordered-themeprimary">
+                        <span class="widget-caption">管理员添加</span>
+                    </div>
+                    <div class="widget-body">
+                        <form class="form-horizontal">
+                            <div class="form-group">
+                                <label for="username" class="col-sm-2 control-label no-padding-right">账号</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" id="username" name="username" placeholder="请输入账号" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="password" class="col-sm-2 control-label no-padding-right">密码</label>
+                                <div class="col-sm-6">
+                                    <input type="password" class="form-control" id="password" name="password" placeholder="请输入密码" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="conpass" class="col-sm-2 control-label no-padding-right">确认密码</label>
+                                <div class="col-sm-6">
+                                    <input type="password" class="form-control" id="conpass" name="conpass" placeholder="请确认密码" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="nickname" class="col-sm-2 control-label no-padding-right">昵称</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" id="nickname" name="nickname" placeholder="请输入昵称" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="email" class="col-sm-2 control-label no-padding-right">邮箱</label>
+                                <div class="col-sm-6">
+                                    <input type="email" class="form-control" id="email" name="email" placeholder="请输入邮箱" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-offset-2 col-sm-10">
+                                    <button id="adminAdd" class="btn btn-primary">添加</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /Page Body -->
+</div>
+{/block}
+{block name="js"}
+<script>
+    $(function () {
+        $('#adminAdd').click(function () {
+            $.ajax({
+                url:"{:url('admin/admin/add')}",
+                type:"post",
+                data:$('.form-horizontal').serialize(),
+                dataType:"json",
+                success:function (data) {
+                    if(data.code ==1){
+                        layer.msg(data.msg,{
+                            icon:6,
+                            time:2000
+                        },function () {
+                            location.href = data.url;
+                        })
+                    }else{
+                        layer.open({
+                            title:"管理员添加失败",
+                            content:data.msg,
+                            icon:5,
+                            anim:6
+                        })
+                    }
+                }
+
+            });
+            return false
+        });
+    });
+</script>
+{/block}
